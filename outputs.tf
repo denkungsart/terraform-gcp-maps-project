@@ -14,3 +14,8 @@ output "client_key_string" {
   value       = google_apikeys_key.client.key_string
   sensitive   = true
 }
+
+output "geocoding_usage_alert_policy_name" {
+  description = "Resource name of the optional Geocoding usage alert policy"
+  value       = try(google_monitoring_alert_policy.geocoding_usage[0].name, null)
+}
