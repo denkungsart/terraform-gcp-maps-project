@@ -36,41 +36,32 @@ resource "google_monitoring_alert_policy" "geocoding_usage" {
   notification_channels = [google_monitoring_notification_channel.geocoding_usage_email[0].name]
 
   conditions {
-    display_name = "Hourly usage exceeds its rolling baseline"
+    display_name = "Hourly usage exceeds its baseline or ceiling"
 
     condition_prometheus_query_language {
       query = <<-PROMQL
         (
-          sum(increase(${trimspace(local.geocoding_request_metric)}[1h]))
-            > ${var.geocoding_usage_alert.multiplier}
-              * (sum(increase(${trimspace(local.geocoding_request_metric)}[24h])) / 24)
+          (
+            sum(increase(${trimspace(local.geocoding_request_metric)}[1h]))
+              > ${var.geocoding_usage_alert.multiplier}
+                * (sum(increase(${trimspace(local.geocoding_request_metric)}[24h])) / 24)
+          )
+          and
+          (
+            sum(increase(${trimspace(local.geocoding_request_metric)}[1h]))
+              > ${var.geocoding_usage_alert.minimum_hourly_requests}
+          )
         )
-        and
+        or
         (
           sum(increase(${trimspace(local.geocoding_request_metric)}[1h]))
-            > ${var.geocoding_usage_alert.minimum_hourly_requests}
+            > ${var.geocoding_usage_alert.maximum_hourly_requests}
         )
       PROMQL
 
       duration            = "0s"
       evaluation_interval = "300s"
-      alert_rule          = "GeocodingUsageAboveBaseline"
-      rule_group          = "google-maps-cost-guardrails"
-    }
-  }
-
-  conditions {
-    display_name = "Hourly usage exceeds its absolute ceiling"
-
-    condition_prometheus_query_language {
-      query = <<-PROMQL
-        sum(increase(${trimspace(local.geocoding_request_metric)}[1h]))
-          > ${var.geocoding_usage_alert.maximum_hourly_requests}
-      PROMQL
-
-      duration            = "0s"
-      evaluation_interval = "300s"
-      alert_rule          = "GeocodingUsageAboveCeiling"
+      alert_rule          = "GeocodingUsageAnomaly"
       rule_group          = "google-maps-cost-guardrails"
     }
   }
