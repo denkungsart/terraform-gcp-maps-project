@@ -1,6 +1,6 @@
 # GCP Maps project module
 
-Creates a Google Cloud project with the Maps, Geocoding, Places, and Translate APIs and restricted server and browser API keys.
+Creates a Google Cloud project with the Maps, Geocoding, and Places APIs and restricted server and browser API keys.
 
 ## Geocoding cost guardrail
 

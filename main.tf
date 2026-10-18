@@ -40,12 +40,6 @@ resource "google_project_service" "maps_embed_api" {
   disable_dependent_services = true
 }
 
-resource "google_project_service" "translate_api" {
-  project                    = google_project.this.project_id
-  service                    = "translate.googleapis.com"
-  disable_dependent_services = true
-}
-
 resource "google_project_service" "places_api" {
   project                    = google_project.this.project_id
   service                    = "places-backend.googleapis.com"
@@ -60,15 +54,10 @@ resource "google_apikeys_key" "server" {
   depends_on = [
     google_project_service.geocoding_api,
     google_project_service.maps_javascript_api,
-    google_project_service.translate_api,
     google_project_service.places_api
   ]
 
   restrictions {
-    api_targets {
-      service = "translate.googleapis.com"
-    }
-
     api_targets {
       service = "geocoding-backend.googleapis.com"
     }
