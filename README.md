@@ -17,6 +17,6 @@ geocoding_usage_alert = {
 }
 ```
 
-The policy is evaluated every five minutes. It alerts when the rolling one-hour Geocoding request count is above both `minimum_hourly_requests` and `multiplier` times the trailing 24-hour hourly average. The absolute `maximum_hourly_requests` ceiling also alerts independently, preventing sustained high traffic from becoming the new baseline.
+The policy is evaluated every five minutes. It alerts when the rolling one-hour Geocoding request count is above both `minimum_hourly_requests` and `multiplier` times the hourly average of the preceding 23 hours. The current hour is left out of that baseline so a burst does not raise its own threshold; with no traffic in the preceding 23 hours, any hour above `minimum_hourly_requests` alerts. The absolute `maximum_hourly_requests` ceiling also alerts independently, preventing sustained high traffic from becoming the new baseline.
 
 This is an alert, not a hard usage or spending cap. Set an appropriate Geocoding API quota separately if requests should be rejected after a fixed limit.

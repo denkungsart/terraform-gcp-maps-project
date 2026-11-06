@@ -44,7 +44,10 @@ resource "google_monitoring_alert_policy" "geocoding_usage" {
           (
             sum(increase(${trimspace(local.geocoding_request_metric)}[1h]))
               > ${var.geocoding_usage_alert.multiplier}
-                * (sum(increase(${trimspace(local.geocoding_request_metric)}[24h])) / 24)
+                * (
+                  (sum(increase(${trimspace(local.geocoding_request_metric)}[23h] offset 1h)) or vector(0))
+                    / 23
+                )
           )
           and
           (
@@ -72,7 +75,7 @@ resource "google_monitoring_alert_policy" "geocoding_usage" {
     content   = <<-MARKDOWN
       Geocoding usage in `${google_project.this.project_id}` crossed a cost guardrail. It either:
 
-      - exceeded ${var.geocoding_usage_alert.multiplier}x its trailing 24-hour hourly average while above ${var.geocoding_usage_alert.minimum_hourly_requests} requests/hour; or
+      - exceeded ${var.geocoding_usage_alert.multiplier}x the hourly average of the preceding 23 hours while above ${var.geocoding_usage_alert.minimum_hourly_requests} requests/hour; or
       - exceeded the absolute ceiling of ${var.geocoding_usage_alert.maximum_hourly_requests} requests/hour.
 
       Check Google Maps Platform metrics for the responsible credential and method. Pause the triggering job or reduce the Geocoding API quota if the traffic is unintended.
