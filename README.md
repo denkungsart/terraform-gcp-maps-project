@@ -19,7 +19,7 @@ geocoding_usage_alert = {
 
 The policy is evaluated every five minutes. It alerts when the rolling one-hour Geocoding request count is above both `minimum_hourly_requests` and `multiplier` times the hourly average of the preceding 23 hours. The current hour is left out of that baseline so a burst does not raise its own threshold; with no traffic in the preceding 23 hours, any hour above `minimum_hourly_requests` alerts. The absolute `maximum_hourly_requests` ceiling also alerts independently, preventing sustained high traffic from becoming the new baseline.
 
-This is an alert, not a hard usage or spending cap. Set an appropriate Geocoding API quota separately if requests should be rejected after a fixed limit.
+This is an alert, not a hard usage or spending cap. The hard limit is the Geocoding API's daily request cap (`daily_request_caps.geocoding`, below).
 
 ## Daily request caps
 
@@ -45,5 +45,7 @@ All other per-day quotas are set to 0, which rejects every request to those meth
 The defaults leave room above the busiest installation's day from mid-October to late November 2026: 514 legacy Places requests, 896 geocodes and 106 Maps JavaScript loads. filmmakers had 7,865 legacy Places requests on its busiest day and sets higher caps. The place inputs averaged about 6 suggestion requests per picked place, so Place Details gets a lower cap than Autocomplete.
 
 Google sends nothing when a cap is reached. Set `daily_request_cap_alert_email` to get an email when a Maps API rejects requests over a quota. That includes any request to a method capped at 0, which nothing of ours calls, and requests over Google's per-minute limits.
+
+Removing a cap from `quotas.tf`, removing the module or going back to a module version without caps leaves the caps in force: Google has no way to delete a quota preference, so Terraform only forgets it. To lift a cap, raise it and apply first; `-1` in `quotas.tf` means unlimited.
 
 If a project already has a quota preference for one of these quotas, set by hand in the console, import it before applying: `terraform import 'module.<name>.google_cloud_quotas_quota_preference.daily_requests["<service>/<quota ID>"]' projects/<project>/locations/global/quotaPreferences/<id>`.
