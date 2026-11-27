@@ -46,6 +46,14 @@ resource "google_project_service" "places_api" {
   disable_dependent_services = true
 }
 
+# Places API (New), which the apps' place inputs move to: Google no longer
+# lets new projects enable the legacy Places API above.
+resource "google_project_service" "places_api_new" {
+  project                    = google_project.this.project_id
+  service                    = "places.googleapis.com"
+  disable_dependent_services = true
+}
+
 resource "google_apikeys_key" "server" {
   display_name = "server"
   name         = "server"
@@ -54,7 +62,8 @@ resource "google_apikeys_key" "server" {
   depends_on = [
     google_project_service.geocoding_api,
     google_project_service.maps_javascript_api,
-    google_project_service.places_api
+    google_project_service.places_api,
+    google_project_service.places_api_new
   ]
 
   restrictions {
@@ -69,6 +78,10 @@ resource "google_apikeys_key" "server" {
     api_targets {
       service = "places-backend.googleapis.com"
     }
+
+    api_targets {
+      service = "places.googleapis.com"
+    }
   }
 }
 
@@ -79,6 +92,7 @@ resource "google_apikeys_key" "client" {
 
   depends_on = [
     google_project_service.places_api,
+    google_project_service.places_api_new,
     google_project_service.maps_javascript_api,
     google_project_service.maps_embed_api
   ]
@@ -94,6 +108,10 @@ resource "google_apikeys_key" "client" {
 
     api_targets {
       service = "places-backend.googleapis.com"
+    }
+
+    api_targets {
+      service = "places.googleapis.com"
     }
 
     browser_key_restrictions {
