@@ -19,3 +19,8 @@ output "geocoding_usage_alert_policy_name" {
   description = "Resource name of the optional Geocoding usage alert policy"
   value       = try(google_monitoring_alert_policy.geocoding_usage[0].name, null)
 }
+
+output "daily_request_cap_alert_policy_name" {
+  description = "Resource name of the optional daily request cap alert policy"
+  value       = try(google_monitoring_alert_policy.daily_request_cap[0].name, null)
+}
